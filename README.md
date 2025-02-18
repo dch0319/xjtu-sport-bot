@@ -22,7 +22,7 @@ pip install requests pycryptodome
 
 ### 1. 配置用户信息
 
-打开脚本文件 sign_run.py，修改以下字段：
+打开脚本文件 sport_bot.py，修改以下字段：
 
 - **学号与密码**  
   找到 `Config` 类中的变量：
@@ -63,7 +63,7 @@ pip install requests pycryptodome
 
 ### 方法1：直接执行脚本：
 ```bash
-python sport_autocheckin.py
+python sport_bot.py
 ```
 
 ### 方法2：使用定时任务：
@@ -76,11 +76,11 @@ python sport_autocheckin.py
    ```
 2. 添加定时任务（每天中午12点运行）：
    ```bash
-   0 12 * * * /usr/bin/python3 /path/to/sport_autocheckin.py
+   0 12 * * * /usr/bin/python3 /path/to/sport_bot.py
    ```
-   注意替换`/usr/bin/python3`为你的Python解释器路径，`/path/to/sport_autocheckin.py`为脚本的绝对路径。
+   注意替换`/usr/bin/python3`为你的Python解释器路径，`/path/to/sport_bot.py`为脚本的绝对路径。
 
-若打卡失败，请检查日志文件 `sport_autocheckin.log` 或根据邮件提示排查错误。
+若打卡失败，请检查日志文件 `sport_bot.log` 或根据邮件提示排查错误。
 
 ---
 
