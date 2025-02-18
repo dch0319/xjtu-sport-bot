@@ -49,7 +49,7 @@ pip install requests pycryptodome
    - 生成16位SMTP授权码（`auth_code`）
 
 2. **修改脚本配置**  
-   在 `main()` 函数中设置：
+   在 `Config` 类中设置：
    ```python
    SEND_EMAIL = True                # 设为True启用邮件通知
    SMTP_AUTH_CODE = "你的SMTP授权码"  # 从QQ邮箱获取
@@ -63,7 +63,7 @@ pip install requests pycryptodome
 
 ### 方法1：直接执行脚本：
 ```bash
-python script_name.py
+python sport_autocheckin.py
 ```
 
 ### 方法2：使用定时任务：
@@ -76,11 +76,11 @@ python script_name.py
    ```
 2. 添加定时任务（每天中午12点运行）：
    ```bash
-   0 12 * * * /usr/bin/python3 /path/to/sign_run.py
+   0 12 * * * /usr/bin/python3 /path/to/sport_autocheckin.py
    ```
-   注意替换`/usr/bin/python3`为你的Python解释器路径，`/path/to/sign_run.py`为脚本的绝对路径。
+   注意替换`/usr/bin/python3`为你的Python解释器路径，`/path/to/sport_autocheckin.py`为脚本的绝对路径。
 
-若打卡失败，请检查日志文件 `sign_run.log` 或根据邮件提示排查错误。
+若打卡失败，请检查日志文件 `sport_autocheckin.log` 或根据邮件提示排查错误。
 
 ---
 
