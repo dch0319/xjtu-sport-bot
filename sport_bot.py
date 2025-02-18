@@ -32,7 +32,7 @@ class Config:
     AES_PUBLIC_KEY = "0725@pwdorgopenp"
 
     # 日志配置
-    LOG_FILE = os.path.join(os.path.dirname(__file__), "sign_run.log")
+    LOG_FILE = os.path.join(os.path.dirname(__file__), "sport_bot.log")
     LOG_LEVEL = logging.INFO
 
 
