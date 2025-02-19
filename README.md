@@ -34,8 +34,8 @@ pip install requests pycryptodome
 - **位置坐标**  
   默认使用涵英楼北草坪坐标，可自行修改：
   ```python
-  longitude = 108.654387      # 经度
-  latitude = 34.257229        # 纬度
+  LONGTITUDE = 108.654387      # 经度
+  LATITUDE = 34.257229        # 纬度
   ```
 
 ---
