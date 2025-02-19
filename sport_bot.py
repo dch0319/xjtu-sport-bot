@@ -198,6 +198,7 @@ def main():
 
     if sign_in_success:
         logging.info("等待31分钟后签退...")
+        print("签到成功！请勿关闭程序，31分钟后自动签退...")
         time.sleep(31*60)  # 31分钟
 
         sign_out_success = sign_operation(
@@ -206,10 +207,15 @@ def main():
             token,
             "签退",
         )
-
-        notice_msg = "打卡成功" if sign_out_success else "签到成功但签退失败"
+        if sign_out_success:
+            notice_msg = "打卡成功"
+            print("已签退，本次打卡有效！")
+        else:
+            notice_msg = "签到成功但签退失败"
+            print("签退失败，请手动签退")
     else:
         notice_msg = "签到失败"
+        print("签到失败！请检查sport_bot.log文件排查错误")
 
     if Config.SEND_EMAIL:
         send_email(notice_msg)
