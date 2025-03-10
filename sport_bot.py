@@ -1,3 +1,5 @@
+import random
+
 import requests
 import logging
 import time
@@ -15,18 +17,18 @@ import os
 # 配置信息
 class Config:
     # 用户信息
-    USER = "student_id"  # 学号
-    PASSWORD = "password"  # 密码
+    USER = ""  # 学号
+    PASSWORD = ""  # 密码
 
-    # 涵英楼北草坪坐标
-    LONGITUDE = 108.654387  # 经度
-    LATITUDE = 34.257229  # 纬度
+    # 涵英楼北草坪固定坐标
+    # LONGITUDE = 108.654387  # 经度
+    # LATITUDE = 34.257229  # 纬度
 
     # 邮件配置
-    SEND_EMAIL = True                # 设为True启用邮件通知
-    SMTP_AUTH_CODE = "你的SMTP授权码"  # 从QQ邮箱获取
-    EMAIL_SENDER = "发件人QQ邮箱@qq.com"
-    EMAIL_RECEIVER = "接收通知的邮箱"  # 可以是同一邮箱
+    SEND_EMAIL = False                # 设为True启用邮件通知
+    SMTP_AUTH_CODE = ""  # 从QQ邮箱获取
+    EMAIL_SENDER = ""
+    EMAIL_RECEIVER = ""  # 可以是同一邮箱
 
     # 加密公钥，无需修改
     AES_PUBLIC_KEY = "0725@pwdorgopenp"
@@ -34,6 +36,16 @@ class Config:
     # 日志配置
     LOG_FILE = os.path.join(os.path.dirname(__file__), "sport_bot.log")
     LOG_LEVEL = logging.INFO
+
+    @staticmethod
+    def get_random_longitude():
+        """生成随机经度"""
+        return round(random.uniform(108.654367, 108.654407), 6)
+
+    @staticmethod
+    def get_random_latitude():
+        """生成随机纬度"""
+        return round(random.uniform(34.257209, 34.257249), 6)
 
 
 # 初始化日志
@@ -188,8 +200,8 @@ def main():
         "https://ipahw.xjtu.edu.cn/szjy-boot/api/v1/sportActa/signRun",
         {
             "sportType": 2,
-            "longitude": Config.LONGITUDE,
-            "latitude": Config.LATITUDE,
+            "longitude": Config.get_random_longitude(),
+            "latitude": Config.get_random_latitude(),
             "courseInfoId": "null",
         },
         token,
@@ -197,12 +209,15 @@ def main():
     )
 
     if sign_in_success:
-        logging.info("等待31分钟后签退...")
-        time.sleep(31*60)  # 31分钟
+        random_minutes = random.randint(31, 45)
+        random_seconds = random.randint(0, 59)
+        total_wait_time = random_minutes * 60 + random_seconds
+        logging.info(f"等待{random_minutes}分钟{random_seconds}秒后签退...")
+        time.sleep(total_wait_time)
 
         sign_out_success = sign_operation(
             "https://ipahw.xjtu.edu.cn/szjy-boot/api/v1/sportActa/signOutTrain",
-            {"longitude": Config.LONGITUDE, "latitude": Config.LATITUDE},
+            {"longitude": Config.get_random_longitude(), "latitude": Config.get_random_latitude()},
             token,
             "签退",
         )

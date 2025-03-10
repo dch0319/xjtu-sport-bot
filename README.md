@@ -13,7 +13,7 @@
 运行前需安装以下Python库：
 
 ```bash
-pip install requests pycryptodome 
+pip install requests pycryptodome pyyaml
 ```
 
 ---
