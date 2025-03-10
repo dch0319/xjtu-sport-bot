@@ -1,4 +1,6 @@
 import random
+import ssl
+from email.mime.multipart import MIMEMultipart
 
 import requests
 import logging
@@ -13,6 +15,8 @@ from Crypto.Util.Padding import pad
 import base64
 import os
 
+from numpy.distutils.conv_template import header
+
 
 # 配置信息
 class Config:
@@ -25,10 +29,11 @@ class Config:
     # LATITUDE = 34.257229  # 纬度
 
     # 邮件配置
-    SEND_EMAIL = os.environ.get('SEND_EMAIL')  # 设为True启用邮件通知
-    SMTP_AUTH_CODE = os.environ.get('SMTP_AUTH_CODE')  # 从QQ邮箱获取
-    EMAIL_SENDER = os.environ.get('EMAIL_SENDER')
-    EMAIL_RECEIVER = os.environ.get('EMAIL_RECEIVER')  # 可以是同一邮箱
+    SENDER_EMAIL = os.environ.get('SENDER_EMAIL')
+    SENDER_PASSWORD = os.environ.get('SENDER_PASSWORD')
+    RECEIVER_EMAIL = os.environ.get('RECEIVER_EMAIL')
+    SMTP_SERVER = os.environ.get('SMTP_SERVER')
+    SMTP_PORT = os.environ.get('SMTP_PORT')
 
     # 加密公钥，无需修改
     AES_PUBLIC_KEY = "0725@pwdorgopenp"
@@ -168,23 +173,38 @@ def sign_operation(url, payload, token, operation_name):
         return False
 
 
-def send_email(content):
-    try:
-        msg = MIMEText(content, "plain", "utf-8")
-        msg["From"] = Header(Config.EMAIL_SENDER)
-        msg["To"] = Header(Config.EMAIL_RECEIVER)
-        msg["Subject"] = Header("运动打卡通知", "utf-8")
+class Email_message:
+    def __init__(self, sender_email: str, sender_password: str, receiver_email: str, smtp_server: str,
+                 smtp_port: int) -> None:
+        self.sender_email = sender_email
+        self.sender_password = sender_password
+        self.receiver_email = receiver_email
+        self.smtp_server = smtp_server
+        self.smtp_port = smtp_port
 
-        with smtplib.SMTP_SSL("smtp.qq.com", 465) as smtp:
-            smtp.login(Config.EMAIL_SENDER, Config.SMTP_AUTH_CODE)
-            smtp.sendmail(Config.EMAIL_SENDER, [Config.EMAIL_RECEIVER], msg.as_string())
-            smtp.quit()
-        logging.info("邮件发送成功")
-    except Exception as e:
-        logging.error(f"邮件发送失败: {str(e)}")
+    def send_email(self, header: str, content: str) -> bool:
+        try:
+            message = MIMEMultipart()
+            message['Subject'] = Header(f"体美劳运动打卡{header}", "utf-8")
+            message['From'] = self.sender_email
+            message['To'] = self.receiver_email
+            msg_content = MIMEText(content, 'plain', 'utf-8')
+            message.attach(msg_content)
+
+            # Create secure connection with server and send email
+            context = ssl.create_default_context()
+            with smtplib.SMTP_SSL(self.smtp_server, self.smtp_port, context=context) as server:
+                server.login(self.sender_email, self.sender_password)
+                server.sendmail(self.sender_email, self.receiver_email, message.as_string())
+            return True
+        except smtplib.SMTPException as e:
+            print('send email error', e)
+            return False
 
 
 def main():
+    smtp = Email_message(os.environ['SENDER_EMAIL'], os.environ['SENDER_PASSWORD'], os.environ['RECEIVER_EMAIL'],
+                         os.environ['SMTP_SERVER'], int(os.environ['SMTP_PORT']))
     # 获取加密后的密码
     crypto_pwd = aes_ecb_encrypt(Config.PASSWORD)
 
@@ -192,8 +212,7 @@ def main():
     token = get_token(Config.USER, crypto_pwd)
     if not token:
         logging.error("获取token失败，终止流程")
-        if Config.SEND_EMAIL:
-            send_email("获取token失败，请检查账号密码")
+        smtp.send_email("失败", "获取token失败，请检查账号密码")
         return
 
     # 执行签到
@@ -222,13 +241,13 @@ def main():
             token,
             "签退",
         )
-
+        header = "成功" if sign_out_success else "失败"
         notice_msg = "打卡成功" if sign_out_success else "签到成功但签退失败"
     else:
+        header = "失败"
         notice_msg = "签到失败"
 
-    if Config.SEND_EMAIL:
-        send_email(notice_msg)
+    smtp.send_email(header, notice_msg)
 
 
 if __name__ == "__main__":
