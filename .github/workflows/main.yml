@@ -1,0 +1,39 @@
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 9 * * *'
+
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install Requirements
+        run: |
+          python -m pip install -r requirements.txt
+
+      - name: Random Wait
+        id: wait
+        run: echo "::set-output name=minutes::$(shuf -i 3-5 -n 1)"
+
+      - name: Sleep for Random Time
+        run: |
+          sleep ${{steps.wait.outputs.minutes}}m
+
+      - name: Run Python script
+        env: 
+          ACCOUNT: ${{ secrets.USER }}
+          SENDER_EMAIL: ${{ secrets.PASSWORD }}
+          SEND_EMAIL: ${{ secrets.SEND_EMAIL }}
+          SENDER_PASSWORD: ${{ secrets.SENDER_PASSWORD }}
+          RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+        run: |
+          python3 ./github_action.py
