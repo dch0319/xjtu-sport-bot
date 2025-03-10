@@ -15,8 +15,6 @@ from Crypto.Util.Padding import pad
 import base64
 import os
 
-from numpy.distutils.conv_template import header
-
 
 # 配置信息
 class Config:
@@ -33,7 +31,7 @@ class Config:
     SENDER_PASSWORD = os.environ.get('SENDER_PASSWORD')
     RECEIVER_EMAIL = os.environ.get('RECEIVER_EMAIL')
     SMTP_SERVER = os.environ.get('SMTP_SERVER')
-    SMTP_PORT = os.environ.get('SMTP_PORT')
+    SMTP_PORT = int(os.environ.get('SMTP_PORT'))
 
     # 加密公钥，无需修改
     AES_PUBLIC_KEY = "0725@pwdorgopenp"
@@ -203,8 +201,8 @@ class Email_message:
 
 
 def main():
-    smtp = Email_message(os.environ['SENDER_EMAIL'], os.environ['SENDER_PASSWORD'], os.environ['RECEIVER_EMAIL'],
-                         os.environ['SMTP_SERVER'], int(os.environ['SMTP_PORT']))
+    smtp = Email_message(Config.SENDER_EMAIL, Config.SENDER_PASSWORD, Config.RECEIVER_EMAIL,
+                         Config.SMTP_SERVER, Config.SMTP_PORT)
     # 获取加密后的密码
     crypto_pwd = aes_ecb_encrypt(Config.PASSWORD)
 
