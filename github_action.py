@@ -3,7 +3,6 @@ import ssl
 from email.mime.multipart import MIMEMultipart
 
 import requests
-import logging
 import time
 import smtplib
 from email.mime.text import MIMEText
@@ -36,10 +35,6 @@ class Config:
     # 加密公钥，无需修改
     AES_PUBLIC_KEY = "0725@pwdorgopenp"
 
-    # 日志配置
-    LOG_FILE = os.path.join(os.path.dirname(__file__), "sport_bot.log")
-    LOG_LEVEL = logging.INFO
-
     @staticmethod
     def get_random_longitude():
         """生成随机经度"""
@@ -50,14 +45,6 @@ class Config:
         """生成随机纬度"""
         return round(random.uniform(34.257209, 34.257249), 6)
 
-
-# 初始化日志
-logging.basicConfig(
-    filename=Config.LOG_FILE,
-    level=Config.LOG_LEVEL,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    encoding="utf-8",
-)
 
 
 # 前端界面的加密函数
@@ -142,7 +129,7 @@ def get_token(user, password):
         return response.json()["data"]["token"]
 
     except Exception as e:
-        logging.error(f"Token获取失败: {str(e)}")
+        print(f"Token获取失败: {str(e)}")
         return None
 
 
@@ -157,17 +144,17 @@ def sign_operation(url, payload, token, operation_name):
             },
             data=json.dumps(payload),
         )
-        logging.info(f"{operation_name}请求: {response.status_code}")
+        print(f"{operation_name}请求: {response.status_code}")
 
         if response.status_code == 200:
             response_data = response.json()
             if response_data.get("success"):
-                logging.info(f"{operation_name}成功")
+                print(f"{operation_name}成功")
                 return True
-            logging.warning(f"{operation_name}失败: {response_data.get('msg')}")
+            print(f"{operation_name}失败: {response_data.get('msg')}")
         return False
     except Exception as e:
-        logging.error(f"{operation_name}异常: {str(e)}")
+        print(f"{operation_name}异常: {str(e)}")
         return False
 
 
@@ -209,7 +196,7 @@ def main():
     # 获取访问令牌
     token = get_token(Config.USER, crypto_pwd)
     if not token:
-        logging.error("获取token失败，终止流程")
+        print("获取token失败，终止流程")
         smtp.send_email("失败", "获取token失败，请检查账号密码")
         return
 
@@ -233,7 +220,7 @@ def main():
         random_seconds = random.randint(0, 59)
         total_wait_time = random_minutes * 60 + random_seconds
         smtp.send_email("成功", f"签到成功，等待{random_minutes}分钟{random_seconds}秒后签退...")
-        logging.info(f"等待{random_minutes}分钟{random_seconds}秒后签退...")
+        print(f"等待{random_minutes}分钟{random_seconds}秒后签退...")
         time.sleep(total_wait_time)
 
         sign_out_success = sign_operation(
