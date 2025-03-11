@@ -1,7 +1,7 @@
 on:
   workflow_dispatch:
   schedule:
-    - cron: '30 9 * * *'
+    - cron: '35 9 * * *'
 
 jobs:
   sign:
@@ -18,17 +18,9 @@ jobs:
         run: |
           python -m pip install -r requirements.txt
 
-      - name: Random Wait
-        id: wait
-        run: echo "::set-output name=minutes::$(shuf -i 3-5 -n 1)"
-
-      - name: Sleep for Random Time
-        run: |
-          sleep ${{steps.wait.outputs.minutes}}m
-
       - name: Run Python script
-        env: 
-          ACCOUNT: ${{ secrets.USER }}
+        env:
+          USER: ${{ secrets.USER }}
           PASSWORD: ${{ secrets.PASSWORD }}
           SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
           SENDER_PASSWORD: ${{ secrets.SENDER_PASSWORD }}
