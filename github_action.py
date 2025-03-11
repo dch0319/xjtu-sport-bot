@@ -226,10 +226,13 @@ def main():
         "签到",
     )
 
-    if sign_in_success:
+    if not sign_in_success:
+        smtp.send_email("失败", "签到失败")
+    else:
         random_minutes = random.randint(31, 45)
         random_seconds = random.randint(0, 59)
         total_wait_time = random_minutes * 60 + random_seconds
+        smtp.send_email("成功", f"签到成功，等待{random_minutes}分钟{random_seconds}秒后签退...")
         logging.info(f"等待{random_minutes}分钟{random_seconds}秒后签退...")
         time.sleep(total_wait_time)
 
@@ -241,11 +244,8 @@ def main():
         )
         header = "成功" if sign_out_success else "失败"
         notice_msg = "打卡成功" if sign_out_success else "签到成功但签退失败"
-    else:
-        header = "失败"
-        notice_msg = "签到失败"
 
-    smtp.send_email(header, notice_msg)
+        smtp.send_email(header, notice_msg)
 
 
 if __name__ == "__main__":
